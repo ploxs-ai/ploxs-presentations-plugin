@@ -1,0 +1,26 @@
+{
+  "name": "ploxs-presentations",
+  "displayName": "Ploxs Presentations",
+  "version": "1.0.0",
+  "description": "Create, inspect, and edit designed Google Slides presentations with Ploxs.",
+  "author": {
+    "name": "Ploxs",
+    "email": "privacy@ploxs.com",
+    "url": "https://ploxs.com"
+  },
+  "homepage": "https://ploxs.com/mcp/setup",
+  "repository": "https://github.com/vipinsanthosh/ploxs",
+  "license": "MIT",
+  "keywords": [
+    "presentations",
+    "google-slides",
+    "mcp",
+    "design"
+  ],
+  "mcpServers": {
+    "ploxs": {
+      "type": "http",
+      "url": "https://ploxs.com/mcp"
+    }
+  }
+}
