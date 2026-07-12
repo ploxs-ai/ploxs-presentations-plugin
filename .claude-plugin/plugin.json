@@ -16,11 +16,5 @@
     "google-slides",
     "mcp",
     "design"
-  ],
-  "mcpServers": {
-    "ploxs": {
-      "type": "http",
-      "url": "https://ploxs.com/mcp"
-    }
-  }
+  ]
 }
