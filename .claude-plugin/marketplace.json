@@ -1,0 +1,15 @@
+{
+  "name": "ploxs",
+  "owner": {
+    "name": "Ploxs",
+    "email": "privacy@ploxs.com"
+  },
+  "description": "Ploxs plugins for Claude Code",
+  "plugins": [
+    {
+      "name": "ploxs-presentations",
+      "source": "./",
+      "description": "Create, inspect, and edit designed Google Slides presentations with Ploxs."
+    }
+  ]
+}
