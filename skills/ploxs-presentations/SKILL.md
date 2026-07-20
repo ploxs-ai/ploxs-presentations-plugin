@@ -84,9 +84,31 @@ the next dependent edit. At most 3 edit tasks can be active at once.
   `before`/`after` requires `anchor_slide_number`; default is `end`.
 - `add_image_to_slide` — generated image; optional `prompt`, `art_style`,
   `aspect_ratio` (`16:9|4:3|1:1|9:16|3:4`), `placement`. Either give a `prompt` or
-  leave `use_slide_context` on.
+  leave `use_slide_context` on. Also honours `redesign_slide` (default true) and
+  `replace_existing_asset` (default false) — see **Adding vs. replacing** below.
 - `add_infographic_to_slide` — chart/infographic from `data_description`; optional
-  `chart_type`, `chart_title`. Same rule: description or slide context.
+  `chart_type`, `chart_title`. Same rule: description or slide context. Also honours
+  `redesign_slide` (default true) and `replace_existing_asset` (default false) — see
+  **Adding vs. replacing** below.
+
+### Adding vs. replacing (infographics and images)
+
+By default these two tools **add** a new chart/picture and keep any that are already
+on the slide (`replace_existing_asset: false`), so a slide can quietly accumulate two
+infographics or two images. Redesign of the slide composition is on by default
+(`redesign_slide: true`).
+
+When the user's intent is to **change, update, refresh, or swap** the infographic/image
+on a slide — not to place a second one next to the existing one — the default should be
+to remake the slide: confirm with the user, then pass `replace_existing_asset: true`
+(with `redesign_slide: true`) so the old chart/picture is removed and the slide is
+redesigned around the new one. A good check-in is: *"This slide already has an
+infographic — do you want me to remake the slide with the new one (replacing the old),
+or add it alongside?"* — and default to replace-and-remake unless they ask for both.
+
+Only leave `replace_existing_asset` at its default (keep both) when the user explicitly
+wants an additional infographic/image kept alongside the existing one. The same choice
+applies to these ops inside an `update_presentation` batch.
 - `update_presentation` — batch of 1–20 of the above operations in one task. Ops run
   sequentially and each `slide_number` is resolved against the deck **as it exists at
   that step** (an earlier `add_slides` shifts later numbers). The batch stops at the
