@@ -28,3 +28,9 @@ Start a new session after installation so Claude Code loads the plugin and its M
 - Setup: https://ploxs.com/mcp/setup
 - Privacy: https://ploxs.com/privacy
 - Terms: https://ploxs.com/terms
+
+## Contributing
+
+This repository is generated. The plugin, its skill and these files live in the Ploxs
+monorepo and are published from there, so edits made directly here are overwritten on the
+next release. Please open an issue instead: privacy@ploxs.com.
