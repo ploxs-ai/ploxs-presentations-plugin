@@ -251,9 +251,6 @@ Returned as text with `(code: …, retryable: …)`.
 - `active_job_limit` — wait for running work to finish, then retry
 - `rate_limited` — pause briefly, then retry
 - entitlement / credit errors — report to the user, don't retry
-- `html_frames_disabled`, or the frame tools are missing — this deployment doesn't have
-  the HTML frame surface. If the account requires conversion-only, explain that the
-  requested mode is unavailable and stop; otherwise ask before falling back to generation
 
 Never invent a `deckRef` or a slide number — source them from `create_presentation`,
 `create_presentation_from_html`, `connect_presentation`, `list_presentations` and
