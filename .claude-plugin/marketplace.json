@@ -9,7 +9,7 @@
     {
       "name": "ploxs-presentations",
       "source": "./",
-      "description": "Create, inspect, and edit designed Google Slides presentations with Ploxs."
+      "description": "Create, convert, inspect, and edit designed Google Slides decks with Ploxs."
     }
   ]
 }

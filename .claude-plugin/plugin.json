@@ -2,19 +2,20 @@
   "name": "ploxs-presentations",
   "displayName": "Ploxs Presentations",
   "version": "1.0.0",
-  "description": "Create, inspect, and edit designed Google Slides presentations with Ploxs.",
+  "description": "Create and edit designed Google Slides decks with Ploxs, including agent-authored HTML frames.",
   "author": {
     "name": "Ploxs",
     "email": "privacy@ploxs.com",
     "url": "https://ploxs.com"
   },
   "homepage": "https://ploxs.com/mcp/setup",
-  "repository": "https://github.com/vipinsanthosh/ploxs",
+  "repository": "https://github.com/vipinsanthosh/ploxs-presentations-plugin",
   "license": "MIT",
   "keywords": [
     "presentations",
     "google-slides",
     "mcp",
+    "html",
     "design"
   ]
 }
