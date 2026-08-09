@@ -8,16 +8,12 @@ MCP server at `https://ploxs.com/mcp`.
 - **Ploxs generates the slides** — give it notes, URLs, document text, or CSV data and a
   saved or custom brand style.
 - **Claude authors the slides** — Claude reads the selected Ploxs style as concrete
-  design tokens, writes the slide HTML itself, validates the frames, and asks Ploxs to
-  convert them exactly as authored into Google Slides.
+  design tokens, writes every final slide once, and asks Ploxs to validate and convert
+  them exactly as authored into Google Slides.
 
-Use the authored path when you ask Claude to create or design the slides and use Ploxs
-for conversion. If you do not specify who should create the initial slides, Claude asks
-before starting.
-
-You can also set the account to **conversion only** on the Ploxs MCP setup page. That
-preference makes Claude author every initial deck while later edits still go through
-Ploxs.
+Choose the default behavior on the Ploxs MCP setup page: **Ask every time** (the default),
+**Ploxs creates**, or **Assistant creates**. Ask mode always confirms the creator before
+a new deck; the other modes route directly. Later edits still go through Ploxs.
 
 Both paths create a normal Ploxs deck, so the editing tools—rewrite a slide, add slides,
 or add generated images and infographics—work on either.
@@ -31,7 +27,7 @@ or add generated images and infographics—work on either.
   editorial layouts, dashboards, product surfaces, timelines, metric walls, and other
   compositions that fit the content and brand.
 - **Charts use Chart.js**, built only from figures in your material and captured during
-  conversion. Claude validates chart frames before submitting them.
+  conversion. The create call validates their export contract before queueing.
 - **The initial deck is created once, then edited in place.** Later changes use Ploxs'
   editing tools on the same Google Slides file, preserving its link.
 - **Figures stay honest on the slide.** Projected, guided, estimated, or dated values are
