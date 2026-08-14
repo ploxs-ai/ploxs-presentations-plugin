@@ -41,7 +41,7 @@ In Claude Desktop or claude.ai:
 2. Choose **Add marketplace** → **Add from a repository** and enter:
 
    ```txt
-   https://github.com/vipinsanthosh/ploxs-presentations-plugin.git
+   https://github.com/ploxs-ai/ploxs-presentations-plugin.git
    ```
 
 3. Install **Ploxs Presentations**.
@@ -51,7 +51,7 @@ In Claude Desktop or claude.ai:
 In Claude Code, install directly from this repository:
 
 ```txt
-/plugin marketplace add vipinsanthosh/ploxs-presentations-plugin
+/plugin marketplace add ploxs-ai/ploxs-presentations-plugin
 /plugin install ploxs-presentations@ploxs
 ```
 
