@@ -7,8 +7,24 @@ description: Create and edit designed Google Slides decks through the production
 
 Production server `ploxs` at `https://ploxs.com/mcp`.
 
-Creation returns a `jobId`; edits return a `task`. Wait for completion before a
-dependent action or a completion claim.
+## Deck checklist
+
+Every new deck runs these in order. Never skip one, never claim a step you did not run.
+Tool results name the next step by number — trust that over your memory of this page.
+
+1. **`get_account_status`** — obey `mcp.initialCreationMode` (see below).
+2. Chat image attachments — **`prepare_presentation_image_upload`** once, hand the user
+   the `uploadUrl`, then **`get_presentation_image_upload_status`** until `ready`.
+3. Style — one saved style the user picked, or one complete inline `style_config`.
+4. Create **once**, passing `creator_choice` — **`create_presentation`** (ploxs), or
+   **`get_html_frame_spec`** then **`create_presentation_from_html`** (native). Keep the
+   returned `jobId` and `statusUrl`.
+5. **`wait_for_presentation`** with that `jobId`; if the client exposes only the compatible
+   **`get_presentation_status`** name, use it instead. Each call waits ~45s; `timedOut: true`
+   means **still building, not failed** — call the same tool again immediately, as many
+   times as it takes.
+6. Finish with the full Google Slides edit and view URLs on separate lines. If you never
+   got them, give the user the `statusUrl`. Never ask the user for a link.
 
 ## Start
 
@@ -19,7 +35,7 @@ dependent action or a completion claim.
 
    | Mode | Required behavior |
    | --- | --- |
-   | `ask` (default) | Always ask: “Should Ploxs create and design it, or should I create it natively and use Ploxs only to convert it?” Ask even when the request appears to choose a path. |
+   | `ask` (default) | Always ask: “Should Ploxs create and design it, or should I create it natively and use Ploxs only to convert it?” Ask even when the request appears to choose a path, then pass the answer as `creator_choice`. Both creation tools **refuse** an ask-mode call without it, so nothing is saved by skipping the question. |
    | `ploxs` | Use `create_presentation`; never author initial HTML frames. |
    | `native` | Author the initial slides and use `create_presentation_from_html`; never call `create_presentation`. |
 
@@ -27,10 +43,24 @@ dependent action or a completion claim.
    tools.
 3. If the topic itself is missing, ask one short topic question before spending a job.
 
+Creation returns a `jobId` and a `statusUrl`; edits return a `task`. Wait for completion
+before a dependent action or a completion claim. Keep the `jobId`: later outline/edit
+tools accept it directly as `deck_ref`, so a same-chat edit never requires the user to
+paste the Slides URL.
+
 The presentation is the deliverable. Keep chat to required questions/actions, terse
 status updates, and final links unless the user asks for explanation. Do not narrate
 reasoning, write a prose slide plan, explain design choices, or print frame HTML before
 submitting it.
+
+## Chat image attachments
+
+For chat image attachments, call **`prepare_presentation_image_upload`** with their exact
+unique filenames, give its single `uploadUrl` to the user, and wait until
+**`get_presentation_image_upload_status`** returns `ready`; the user may upload them in
+several selections from different folders. Pass the `sessionId` as
+`asset_session_id` to either creation tool. Native frames reference returned ids with
+`<img data-ploxs-image-id="presentation_image_N">`. Do not add descriptions or mapping.
 
 ## Choose a style
 
@@ -51,11 +81,11 @@ Use exactly one style source per call.
 ## Ploxs creation
 
 Call **`create_presentation`** once with the source material (`markdown`, `urls`,
-`file_texts`, `csv_sources`), optional `instructions` / `slide_count`, and one style
-source. It creates a new Google Slides file.
+`file_texts`, `csv_sources`), optional `asset_session_id`, `instructions` / `slide_count`,
+and one style source. It creates a new Google Slides file.
 
-Then call **`wait_for_presentation`**. If `timedOut` is true, wait again; the job is still
-running. Keep the completed `deckRef`.
+Then use the completion tool from checklist step 5 with the `jobId`. If `timedOut` is
+true, call the same tool again with the same `jobId`. Keep the completed `deckRef`.
 
 ## Native creation
 
@@ -74,18 +104,21 @@ running. Keep the completed `deckRef`.
    repeat one layout throughout the deck.
 3. Put the finished HTML directly in the complete `frames` array and send it to
    **`create_presentation_from_html`** once, passing `style_ref` (the `styleRef` from
-   step 1) and a plain-text title. Never retype the style config on this call: a single
+   step 1), any ready `asset_session_id`, and a plain-text title. Never retype the style config on this call: a single
    missing palette key rejects the entire authored deck, which is the most expensive way
    this flow can fail.
    Creation performs converter validation before queueing, and invalid frames consume no
    job. Do not emit the HTML in chat or an intermediate document, and never repeat the
    large frame payload through a separate validation call.
 4. If creation returns `invalid_html_frames`, repair only the named final frames and
-   resubmit. Otherwise call **`wait_for_presentation`** and keep the `deckRef`.
+   resubmit. Otherwise use the completion tool from checklist step 5 with its `jobId`;
+   repeat only if `timedOut` is true, then keep the `deckRef`.
 
 Frames convert exactly as authored. Follow the returned contract literally, especially:
 
-- one fixed 1280×720 frame per slide with one top-level element and inline CSS
+- one fixed 1280×720 frame per slide with one top-level element and inline CSS; the root
+  explicitly owns that full canvas and authors every inset/alignment itself because Ploxs
+  adds no margins, centering, scaling, or repositioning to native frames
 - no `font-family` declarations except deliberate monospace; deck fonts already apply
 - use the whole style as one design system while varying composition by message
 - use only supplied numbers and label estimates, projections, and dates on-slide
@@ -133,7 +166,9 @@ against the deck state at that operation.
 - `presentation_not_connected` → call `connect_presentation`.
 - `slide_not_found` → fetch the live outline again.
 - `active_job_limit` / `rate_limited` → wait, then retry.
-- Entitlement or credit errors → report them; do not retry.
+- Entitlement or credit errors: report the billing link and wait. After the user
+  recharges or usage becomes available, continue in this same chat and retry the
+  original tool call with the existing job or deck context.
 
 Never invent a `deckRef` or slide number. On completion, label the Google Slides edit and
 view URLs and put each full URL on its own line.

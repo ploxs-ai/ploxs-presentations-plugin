@@ -2,7 +2,8 @@
   "mcpServers": {
     "ploxs": {
       "type": "http",
-      "url": "https://ploxs.com/mcp"
+      "url": "https://ploxs.com/mcp",
+      "timeout": 450000
     }
   }
 }
