@@ -30,7 +30,8 @@ Tool results name the next step by number — trust that over your memory of thi
 
 1. Call **`get_account_status`** before every initial deck. If
    `google.driveConnected` is false, give the user `links.googleDrive` / `links.settings`
-   and wait. Surface entitlement errors without retrying.
+   and wait. Credit or entitlement errors block Ploxs generation and AI edits, but
+   never block credit-free native HTML-frame creation.
 2. Obey `mcp.initialCreationMode`:
 
    | Mode | Required behavior |
@@ -166,9 +167,10 @@ against the deck state at that operation.
 - `presentation_not_connected` → call `connect_presentation`.
 - `slide_not_found` → fetch the live outline again.
 - `active_job_limit` / `rate_limited` → wait, then retry.
-- Entitlement or credit errors: report the billing link and wait. After the user
+- Entitlement or credit errors from Ploxs generation or edit tools: report the billing
+  link and wait. Native HTML-frame creation remains credit-free. After the user
   recharges or usage becomes available, continue in this same chat and retry the
-  original tool call with the existing job or deck context.
+  original billable tool call with the existing job or deck context.
 
 Never invent a `deckRef` or slide number. On completion, label the Google Slides edit and
 view URLs and put each full URL on its own line.
