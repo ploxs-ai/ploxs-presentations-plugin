@@ -36,9 +36,9 @@ Tool results name the next step by number — trust that over your memory of thi
 
    | Mode | Required behavior |
    | --- | --- |
-   | `ask` (default) | Always ask: “Should Ploxs create and design it, or should I create it natively and use Ploxs only to convert it?” Ask even when the request appears to choose a path, then pass the answer as `creator_choice`. Both creation tools **refuse** an ask-mode call without it, so nothing is saved by skipping the question. |
+   | `ask` | Always ask: “Should Ploxs create and design it, or should I create it natively and use Ploxs only to convert it?” Ask even when the request appears to choose a path, then pass the answer as `creator_choice`. Both creation tools **refuse** an ask-mode call without it, so nothing is saved by skipping the question. |
    | `ploxs` | Use `create_presentation`; never author initial HTML frames. |
-   | `native` | Author the initial slides and use `create_presentation_from_html`; never call `create_presentation`. |
+   | `native` (default) | Author the initial slides and use `create_presentation_from_html`; never call `create_presentation`. |
 
    These modes apply only to initial creation. Existing-deck edits always use the edit
    tools.

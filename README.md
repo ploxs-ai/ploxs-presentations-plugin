@@ -11,9 +11,10 @@ MCP server at `https://ploxs.com/mcp`.
   design tokens, writes every final slide once, and asks Ploxs to validate and convert
   them exactly as authored into Google Slides.
 
-Choose the default behavior on the Ploxs MCP setup page: **Ask every time** (the default),
-**Ploxs creates**, or **Assistant creates**. Ask mode always confirms the creator before
-a new deck; the other modes route directly. Later edits still go through Ploxs.
+Choose the default behavior on the Ploxs MCP setup page: **Ask every time**,
+**Ploxs creates**, or **Assistant creates** (the default). Ask mode always confirms the
+creator before a new deck; the other modes route directly. Later edits still go through
+Ploxs.
 
 Both paths create a normal Ploxs deck, so the editing tools—rewrite a slide, add slides,
 or add generated images and infographics—work on either.
