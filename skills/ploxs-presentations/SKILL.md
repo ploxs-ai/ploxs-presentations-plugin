@@ -82,11 +82,30 @@ Use exactly one style source per call.
 ## Ploxs creation
 
 Call **`create_presentation`** once with the source material (`markdown`, `urls`,
-`file_texts`, `csv_sources`), optional `asset_session_id`, `instructions` / `slide_count`,
+`file_texts`), optional `asset_session_id`, `instructions` / `slide_count`,
 and one style source. It creates a new Google Slides file.
 
 Then use the completion tool from checklist step 5 with the `jobId`. If `timedOut` is
 true, call the same tool again with the same `jobId`. Keep the completed `deckRef`.
+
+## Preparing source material
+
+Ploxs plans the whole deck in one pass from what you send, so send it material rather
+than a finished deck.
+
+- **Do not pre-split into slides.** Pass the full text and let `slide_count` and
+  `instructions` shape the structure. A deck you have already cut into slides gives the
+  planner nothing to work with and usually reads worse.
+- **Reproduce tables verbatim** inside `file_texts`. Ploxs detects tabular runs, attaches
+  them as datasets and computes exact aggregates from them, then holds the planner to
+  those values. A table you have summarised into prose loses that guarantee.
+- **Reduce large datasets yourself.** Ploxs reads roughly 20,000 rows of a file in one
+  pass and rejects anything past that with a message pointing back here. When a source is
+  bigger, aggregate it in your own context first and pass the result plus a note on how it
+  was aggregated.
+- **Do not condense unless you must.** Ploxs condenses only when the material cannot
+  otherwise fit, so summarising first discards detail nothing had asked you to lose.
+- **Keep figures exact.** Never round, convert or recompute a number on the way in.
 
 ## Native creation
 
