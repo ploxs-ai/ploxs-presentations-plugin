@@ -121,7 +121,9 @@ than a finished deck.
    slide. The two examples bracket the density range rather than sampling it — a bare
    typographic statement at the floor, a full command dashboard at the ceiling. Build
    between them from `patterns.catalog`: never reuse example copy or numbers, and never
-   repeat one layout throughout the deck.
+   repeat one layout throughout the deck. `briefs.layout` governs geometry, alignment,
+   and type scale only; it never limits composition. Use the catalog as starting points
+   and invent beyond it whenever the message calls for a different structural spine.
 3. Put the finished HTML directly in the complete `frames` array and send it to
    **`create_presentation_from_html`** once, passing `style_ref` (the `styleRef` from
    step 1), any ready `asset_session_id`, and a plain-text title. Never retype the style config on this call: a single
