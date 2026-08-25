@@ -13,8 +13,9 @@ Every new deck runs these in order. Never skip one, never claim a step you did n
 Tool results name the next step by number — trust that over your memory of this page.
 
 1. **`get_account_status`** — obey `mcp.initialCreationMode` (see below).
-2. Chat image attachments — **`prepare_presentation_image_upload`** once, hand the user
-   the `uploadUrl`, then **`get_presentation_image_upload_status`** until `ready`.
+2. Images already supplied for the deck - **`prepare_presentation_image_upload`** once,
+   hand the user the `uploadUrl`, then **`get_presentation_image_upload_status`** until
+   `ready`. Use that session during either initial creation path, never as a later edit.
 3. Style — one saved style the user picked, or one complete inline `style_config`.
 4. Create **once**, passing `creator_choice` — **`create_presentation`** (ploxs), or
    **`get_html_frame_spec`** then **`create_presentation_from_html`** (native). Keep the
@@ -54,14 +55,19 @@ status updates, and final links unless the user asks for explanation. Do not nar
 reasoning, write a prose slide plan, explain design choices, or print frame HTML before
 submitting it.
 
-## Chat image attachments
+## Supplied presentation images
 
-For chat image attachments, call **`prepare_presentation_image_upload`** with their exact
-unique filenames, give its single `uploadUrl` to the user, and wait until
+For images already supplied for the deck, including images generated earlier in the
+chat, call **`prepare_presentation_image_upload`** with their exact unique filenames,
+give its single `uploadUrl` to the user, and wait until
 **`get_presentation_image_upload_status`** returns `ready`; the user may upload them in
-several selections from different folders. Pass the `sessionId` as
-`asset_session_id` to either creation tool. Native frames reference returned ids with
-`<img data-ploxs-image-id="presentation_image_N">`. Do not add descriptions or mapping.
+several selections from different folders. Pass the `sessionId` as `asset_session_id`
+to either initial creation tool. On the Ploxs path, **`create_presentation`** analyzes
+and places every ready image while authoring the deck. On the native path, frames
+reference returned ids with `<img data-ploxs-image-id="presentation_image_N">`. Do not
+create the deck without supplied images, generate replacements, or schedule
+**`add_image_to_slide`** as a follow-up merely because Ploxs is the creator. Do not add
+descriptions or mapping.
 
 ## Choose a style
 
