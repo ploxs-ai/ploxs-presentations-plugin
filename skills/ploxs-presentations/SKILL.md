@@ -194,10 +194,16 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   `aspectRatio`; decide the placement in your authored HTML and reference that URL with
   `<img>`.
 - Put Chart.js markup directly in the authored frame using the returned chart protocol.
-  Do not call `add_infographic_to_slide` for new work; that tool remains for legacy
-  clients and keeps the old server-generated chart behavior.
-- Use `add_slides` only for legacy text-driven insertion. For compound authored edits,
-  use `update_presentation` with `edit_slide` operations carrying `html`.
+  If the frame spec is truncated or the chart block is unavailable, call
+  **`get_chart_spec`**; it returns the library URL, rules, and complete working example
+  in both text and structuredContent. Do not call `add_infographic_to_slide` for new
+  work; that tool remains for legacy clients and keeps the old server-generated chart
+  behavior.
+- To insert new slides, pass authored `frames` to **`add_slides`**. It inserts those
+  frames at the end or before/after an anchor without replacing an existing slide.
+  MCP insertion is HTML-only, so Ploxs does not design the inserted slides. For compound
+  authored edits, use `update_presentation` with `edit_slide` and `add_slides` operations
+  carrying HTML.
 - Wait with **`wait_for_presentation_edit`** before dependent edits, and keep no more
   than three edit tasks active per key.
 - Creation tools never update a deck. Calling either again creates a duplicate Drive
