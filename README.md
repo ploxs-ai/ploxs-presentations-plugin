@@ -3,21 +3,15 @@
 Ploxs connects Claude to designed Google Slides through the production Streamable HTTP
 MCP server at `https://ploxs.com/mcp`.
 
-## Two ways to build a deck
+## How a deck is built
 
-- **Ploxs generates the slides** — give it notes, URLs, document text, or CSV data and a
-  saved or custom brand style.
-- **Claude authors the slides** — Claude reads the selected Ploxs style as concrete
-  design tokens, writes every final slide once, and asks Ploxs to validate and convert
-  them exactly as authored into Google Slides.
+Claude authors the slides. It reads the selected Ploxs style as concrete design tokens,
+writes every final slide once as HTML, and asks Ploxs to validate and convert them
+exactly as authored into Google Slides. Ploxs supplies hosted images and icons and
+writes the deck to your Drive.
 
-Choose the default behavior on the Ploxs MCP setup page: **Ask every time**,
-**Ploxs creates**, or **Assistant creates** (the default). Ask mode always confirms the
-creator before a new deck; the other modes route directly. Later edits still go through
-Ploxs.
-
-Both paths create a normal Ploxs deck, so the editing tools—rewrite a slide, add slides,
-or add generated images and infographics—work on either.
+Later edits work the same way: Claude rewrites a slide or authors new slides, and Ploxs
+converts and applies them to the live deck.
 
 ### How the authored path behaves
 
@@ -79,8 +73,8 @@ status.
 
 ## Before creating decks
 
-Sign in at [ploxs.com](https://ploxs.com), connect Google Drive in Settings, and make sure
-the account has usage available. Ploxs creates the Slides file in your own Drive, so
+Sign in at [ploxs.com](https://ploxs.com) and connect Google Drive in Settings. Generated
+images need usage available. Ploxs creates the Slides file in your own Drive, so
 Drive linking requires your approval.
 
 ## Contents
