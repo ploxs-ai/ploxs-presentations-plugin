@@ -138,6 +138,12 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   the deck (metric tiles, capability rows, step markers). A deck with zero icons has left
   the cheapest source of visual quality unused; a restrained style uses fewer and larger
   icons, not none
+- **size every icon yourself** - Ploxs only swaps the placeholder for a bare
+  `<svg width="1em" height="1em">` and adds no sizing CSS, so the wrapper's `font-size`
+  is the icon size. Width/height on the wrapper alone leaves the glyph at text size in the
+  corner of an empty box. Use `.ico{display:flex;font-size:48px}`; for a badge or circle,
+  set the box and the glyph separately and center it:
+  `.badge{display:grid;place-items:center;width:72px;height:72px;font-size:40px}`
 - **put a real chart on any slide whose point is a comparison, trend, distribution, or
   part-of-whole** - copy the returned Chart.js plumbing exactly (unique canvas id, loader,
   `dataset.initialized`, `animation: false`). CSS-drawn bars are decoration, not data, and
