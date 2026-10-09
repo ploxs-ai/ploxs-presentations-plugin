@@ -1,7 +1,7 @@
 {
   "name": "ploxs-presentations",
   "displayName": "Ploxs Presentations",
-  "version": "6.4.0",
+  "version": "6.4.1",
   "description": "Author and edit designed Google Slides decks in chat, using Ploxs for hosted images, icons, conversion, and Google Slides writes.",
   "author": {
     "name": "Ploxs",
