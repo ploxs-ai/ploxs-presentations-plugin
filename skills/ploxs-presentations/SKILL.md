@@ -24,13 +24,17 @@ request to stop. Report a stalled job with its status link instead of retrying f
 Every new deck runs these in order. Never skip one, never claim a step you did not run.
 Tool results name the next step by number - trust that over your memory of this page.
 
-1. **`get_account_status`** - Google Drive must be connected (see below).
+1. **`get_account_status`** - Google Drive must be connected (see below). Then follow
+   `generatedImages.policy`: `ask_user` means ask the user once, now, whether to add
+   generated images (see "Generated images").
 2. Images already supplied for the deck - **`prepare_presentation_image_upload`** once,
    hand the user the `uploadUrl`, then **`get_presentation_image_upload_status`** until
    `ready`. Reference them in the frames, never as a later edit.
 3. Style - one saved style the user picked, or one complete inline `style_config`.
 4. **`get_html_frame_spec`** once, author every final frame, then
    **`create_presentation_from_html`** **once**. Keep the returned `jobId` and `statusUrl`.
+   Generate any images for the deck between the spec and authoring - do not overdo it; a
+   failed automatic image never stops the deck.
 5. **`wait_for_presentation`** with that `jobId`; if the client exposes only the compatible
    **`get_presentation_status`** name, use it instead. Each call waits ~45s; `timedOut: true`
    means **still building, not failed** - continue polling while the task is active,
@@ -45,7 +49,8 @@ Tool results name the next step by number - trust that over your memory of this 
 1. Call **`get_account_status`** before every initial deck. If
    `google.driveConnected` is false, give the user `links.googleDrive` / `links.settings`
    and wait. Creating a deck from authored HTML frames and authored edits are
-   credit-free; only **`generate_image`** uses credits.
+   credit-free; only **`generate_image`** uses credits. The same result carries
+   `generatedImages.policy`, the user's choice about generated images for this deck.
 2. If the topic itself is missing, ask one short topic question before spending a job.
 
 Creation returns a `jobId` and a `statusUrl`; edits return a `task`. Wait for completion
@@ -80,6 +85,36 @@ the `edit_slide` html, the `add_slides` frames, or the `update_presentation` ope
 and pass the `sessionId` as `asset_session_id` with the same `deck_ref`. Each edit may
 place only some of the session's images. Never create a new deck to add the user's
 photos.
+
+## Generated images
+
+**`generate_image`** spends the user's credits. Follow `generatedImages.policy` from
+`get_account_status`; it combines the user's Settings choice (on / off / ask every time)
+with whether the account has credits or a membership.
+
+- `auto` - add generated images wherever you judge they make the deck better. Each one
+  costs the user credits, so do not overdo it.
+- `ask_user` - right after `get_account_status`, ask once: "Should I add a few
+  AI-generated images where they help? They use your Ploxs credits." Yes means `auto`
+  for this deck, no means `on_request`. Skip the question when the request already
+  says whether to use generated images.
+- `on_request` - call `generate_image` only for an image the user explicitly asked for.
+- No `get_account_status` in this chat yet: treat the policy as `on_request`.
+
+Pass `requested_by: "auto"` for an image you chose to add and `"user"` for one the user
+asked for. For a new deck, call `generate_image` after `get_html_frame_spec` with its
+`style_ref` and place each returned `assetUrl` in the frames with `<img>` before
+`create_presentation_from_html`; for an existing deck pass `deck_ref`.
+
+An automatic image that fails, or credits that run out, never stops the deck: compose
+that slide without the image (or with a clean placeholder panel in the deck style),
+make no more `generate_image` calls for the deck after a credit error, and keep
+building. Do not ask the user mid-build; at most note the skipped images in one line of
+the final message.
+
+A user-requested image that fails, or hits a credit or membership limit, is different:
+tell the user plainly what happened, with the billing link for a credit error, instead
+of dropping or replacing it silently.
 
 ## Choose a style
 
@@ -167,10 +202,10 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   model runs in this path.
 - If the user supplied their own photo for the slide, use the upload flow in
   "Supplied presentation images" and pass `asset_session_id` with the edit.
-- If the slide needs a generated visual, call **`generate_image`** with the deck ref and
-  a precise prompt. It returns a public `assetUrl`, pixel dimensions, and the actual
-  `aspectRatio`; decide the placement in your authored HTML and reference that URL with
-  `<img>`.
+- If the slide needs a generated visual (see "Generated images"), call
+  **`generate_image`** with the deck ref and a precise prompt. It returns a public
+  `assetUrl`, pixel dimensions, and the actual `aspectRatio`; decide the placement in
+  your authored HTML and reference that URL with `<img>`.
 - Put Chart.js markup directly in the authored frame using the returned chart protocol.
   If the frame spec is truncated or the chart block is unavailable, call
   **`get_chart_spec`**; it returns the library URL, rules, and complete working example
@@ -204,10 +239,13 @@ state at that operation.
   place each uploaded image with an `imageId` the upload session returned.
 - `presentation_image_upload_not_ready` → wait for the status to report `ready`;
   `presentation_image_upload_expired` → create a new upload link.
-- Entitlement or credit errors from **`generate_image`**: report the billing link and
-  wait. HTML-frame creation and authored edits remain credit-free. After the user
-  recharges or usage becomes available, continue in this same chat and retry the
-  original tool call with the existing job or deck context.
+- Entitlement or credit errors from **`generate_image`** on an image the user asked
+  for: report the billing link and wait. HTML-frame creation and authored edits remain
+  credit-free. After the user recharges or usage becomes available, continue in this
+  same chat and retry the original tool call with the existing job or deck context.
+- Any error on an automatic image (`requested_by: "auto"`), including
+  `INSUFFICIENT_CREDITS` and `auto_images_off`: build that slide without the image and
+  keep going.
 
 Never invent a `deckRef` or slide number. On completion, label the Google Slides edit and
 view URLs and put each full URL on its own line.
