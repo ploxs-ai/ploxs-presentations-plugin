@@ -30,7 +30,8 @@ Tool results name the next step by number - trust that over your memory of this 
 2. Images already supplied for the deck - **`prepare_presentation_image_upload`** once,
    hand the user the `uploadUrl`, then **`get_presentation_image_upload_status`** until
    `ready`. Reference them in the frames, never as a later edit.
-3. Style - one saved style the user picked, or one complete inline `style_config`.
+3. Style - one saved style the user picked, or one complete inline `style_config` drawn
+   from the deck's subject, not a default look.
 4. **`get_html_frame_spec`** once, author every final frame, then
    **`create_presentation_from_html`** **once**. Keep the returned `jobId` and `statusUrl`.
    Generate any images for the deck between the spec and authoring - do not overdo it; a
@@ -129,6 +130,20 @@ Use exactly one style source per call.
 - Otherwise pass a complete inline **`style_config`**: `style`, all seven
   `colorPalette` roles, and `typographyConfig`. Put persistent rules in
   `brandGuidelines` and personality in `customStyleDirective`.
+- **Derive that style from the deck's subject, not from a default.** Silently, before
+  choosing any value: name the subject's visual world (its materials, objects, places,
+  era, and the people in it), take the palette from real colours in that world, choose a
+  heading and a body font for the voice this audience needs, and choose one signature
+  motif that recurs across the slides. A coffee supply-chain deck might take kraft
+  paper, roast browns, and stamped lot labels; a deep-sea biology deck abyss navy,
+  bioluminescent cyan, and sonar contour lines; a quarterly finance review ledger rules,
+  banker's green, and tabular figures. Those show the method, not values to reuse. Open
+  `customStyleDirective.personality` with the world and motif, and name the compositions
+  it suggests in `brandGuidelines.layoutUsage`. Avoid the look every unguided deck
+  shares: a blue or indigo primary with an orange accent, one neutral sans chosen for
+  both roles without a reason, white rounded cards with an icon badge on each, and a
+  personality made only of adjectives such as clean, modern, and professional. The
+  user's brand, a saved style, or a request for something plain always wins.
 - Let the destination tool validate the style before queueing. Use
   **`validate_style_config`** only to diagnose a reported config problem or when the user
   explicitly requests validation; do not duplicate routine config payloads.
@@ -146,7 +161,7 @@ Use exactly one style source per call.
    **final** frame directly. Do not first translate the deck into prose; do not create a
    prototype, sample, validation slide, outline, or design memo; do not spend one turn per
    slide. The two examples bracket the density range rather than sampling it - a bare
-   typographic statement at the floor, a full command dashboard at the ceiling. Build
+   typographic statement at the floor, a dense editorial data spread at the ceiling. Build
    between them from `patterns.catalog`: never reuse example copy or numbers, and never
    repeat one layout throughout the deck. `briefs.layout` governs geometry, alignment,
    and type scale only; it never limits composition. Use the catalog as starting points
@@ -180,10 +195,17 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   centre, so keep the subject near the middle
 - no `font-family` declarations except deliberate monospace; deck fonts already apply
 - use the whole style as one design system while varying composition by message
+- **take composition from the subject** - a route or map for logistics, a specimen plate
+  for a product, a ledger page for finance, a front page for news. Dashboards, metric
+  walls, and bento grids suit a product, a service, or a live operation, not every deck
+- **boxes are not structure** - group with type scale, alignment, rules, and space before
+  reaching for a container. A deck of rounded cards that each carry an icon badge, a
+  title, and two lines is the generic template whatever its palette
 - use only supplied numbers and label estimates, projections, and dates on-slide
 - **use the icon library** - `icons.mandate` resolves `__ICON_<keywords>__` placeholders to
   professional inline SVG from a 200,000+ icon set. Give icons one consistent role across
-  the deck (metric tiles, capability rows, step markers). A deck with zero icons has left
+  the deck, with glyphs from the subject's world set in the open beside the text they
+  mark, never the same tinted badge on every tile. A deck with zero icons has left
   the cheapest source of visual quality unused; a restrained style uses fewer and larger
   icons, not none
 - **size every icon yourself** - Ploxs only swaps the placeholder for a bare
