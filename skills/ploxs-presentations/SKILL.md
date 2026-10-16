@@ -38,9 +38,8 @@ Tool results name the next step by number - trust that over your memory of this 
 5. **`wait_for_presentation`** with that `jobId`; if the client exposes only the compatible
    **`get_presentation_status`** name, use it instead. Each call waits ~45s; `timedOut: true`
    means **still building, not failed** - continue polling while the task is active,
-   subject to the stopping conditions above. When it finishes, look at the deck with
-   **`get_slide_images`** and fix any **LAYOUT CHECK** slide (`layoutWarnings`) or
-   visible flaw with **`edit_slide`** first.
+   subject to the stopping conditions above. When it finishes, fix any **LAYOUT CHECK**
+   slide it lists (`layoutWarnings`) with **`edit_slide`** first.
 6. Finish with the full Google Slides edit and view URLs on separate lines. Then share
    the returned `mcpGuideUrl`, a short page of follow-up prompts the user can copy to keep
    editing the deck. If you never got the deck links, give the user the `statusUrl`.
@@ -214,9 +213,12 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   slide's text, slide images, and a PDF link. Write one complete `style_config` that
   reproduces that deck (do not invent a new look) and call `connect_presentation` again
   with it to finish connecting.
-- **Look at a deck** with **`get_slide_images`**: leave `slides` empty for an overview
-  of every slide, or name slides for a readable close-up. Use **`read_slide`** for one
-  slide's exact elements: ids, boxes, text, fonts, colours, image crops, and notes.
+- **Look at a deck** with **`get_slide_images`** only when it is worth the image tokens:
+  the user asks to see or review the deck, reports something that looks wrong, or a
+  **LAYOUT CHECK** and `read_slide` do not tell you enough about a slide. It is not a
+  routine check after every create or edit. Name only the slides you need; leave `slides`
+  empty only for a whole-deck overview. Use **`read_slide`** for one slide's exact
+  elements: ids, boxes, text, fonts, colours, image crops, and notes.
 - Give the user a file with **`export_presentation`** (`pdf` or `pptx`): it returns a
   short-lived download link; call again for a fresh one.
 - Fetch **`get_presentation_outline`** before targeting a slide number.
