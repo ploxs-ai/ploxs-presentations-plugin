@@ -38,7 +38,9 @@ Tool results name the next step by number - trust that over your memory of this 
 5. **`wait_for_presentation`** with that `jobId`; if the client exposes only the compatible
    **`get_presentation_status`** name, use it instead. Each call waits ~45s; `timedOut: true`
    means **still building, not failed** - continue polling while the task is active,
-   subject to the stopping conditions above.
+   subject to the stopping conditions above. When it finishes, look at the deck with
+   **`get_slide_images`** and fix any **LAYOUT CHECK** slide (`layoutWarnings`) or
+   visible flaw with **`edit_slide`** first.
 6. Finish with the full Google Slides edit and view URLs on separate lines. Then share
    the returned `mcpGuideUrl`, a short page of follow-up prompts the user can copy to keep
    editing the deck. If you never got the deck links, give the user the `statusUrl`.
@@ -104,7 +106,9 @@ with whether the account has credits or a membership.
 Pass `requested_by: "auto"` for an image you chose to add and `"user"` for one the user
 asked for. For a new deck, call `generate_image` after `get_html_frame_spec` with its
 `style_ref` and place each returned `assetUrl` in the frames with `<img>` before
-`create_presentation_from_html`; for an existing deck pass `deck_ref`.
+`create_presentation_from_html`; for an existing deck pass `deck_ref`. Decide the shape
+of each image slot first and request the matching `aspect_ratio`, then fit the returned
+`widthPx`/`heightPx` as the contract describes.
 
 An automatic image that fails, or credits that run out, never stops the deck: compose
 that slide without the image (or with a clean placeholder panel in the deck style),
@@ -165,6 +169,16 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
 - one fixed 1280×720 frame per slide with one top-level element and inline CSS; the root
   explicitly owns that full canvas and authors every inset/alignment itself because Ploxs
   adds no margins, centering, scaling, or repositioning to native frames
+- **use the height** - normal flow stacks content at the top and leaves the rest of the
+  720px empty, which reads as an unfinished slide. Give the root
+  `grid-template-rows: auto minmax(0,1fr)` and let the body row stretch its panels to the
+  bottom margin or centre its content; a statement, quote, or big number sits centred on
+  the stage instead. Ploxs measures every finished slide and reports the ones that stop
+  well above the bottom (see checklist step 5)
+- **keep every picture's shape** - give each `<img>` an explicit box plus
+  `object-fit: cover` or `contain`, or a box with the picture's own `aspect-ratio` from its
+  `widthPx`/`heightPx`. A picture is never stretched, and Google Slides crops from the
+  centre, so keep the subject near the middle
 - no `font-family` declarations except deliberate monospace; deck fonts already apply
 - use the whole style as one design system while varying composition by message
 - use only supplied numbers and label estimates, projections, and dates on-slide
@@ -193,8 +207,27 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
 
 - Use **`list_presentations`** to find known decks.
 - Use **`connect_presentation`** for another Slides URL/id. If it returns an `actionUrl`,
-  give it to the user and retry only after approval.
+  give that short-lived link to the user; they pick the exact file in Google's file
+  picker, then call `connect_presentation` again.
+- **Decks Ploxs did not make**: call `connect_presentation` with only the presentation.
+  It returns an onboarding report: the deck's exact theme colours and fonts, every
+  slide's text, slide images, and a PDF link. Write one complete `style_config` that
+  reproduces that deck (do not invent a new look) and call `connect_presentation` again
+  with it to finish connecting.
+- **Look at a deck** with **`get_slide_images`**: leave `slides` empty for an overview
+  of every slide, or name slides for a readable close-up. Use **`read_slide`** for one
+  slide's exact elements: ids, boxes, text, fonts, colours, image crops, and notes.
+- Give the user a file with **`export_presentation`** (`pdf` or `pptx`): it returns a
+  short-lived download link; call again for a fresh one.
 - Fetch **`get_presentation_outline`** before targeting a slide number.
+- **Small changes** go through `update_presentation`'s native steps, which keep
+  everything they do not name: `replace_text` and `replace_image` (element ids from
+  `read_slide`; the image is centre-cropped into the existing frame),
+  `replace_all_text`, `set_speaker_notes`, `duplicate_slide`, `move_slides`, and
+  `delete_slides` (only slides the user asked to remove). Use them instead of
+  rebuilding a slide, above all on decks Ploxs did not make.
+- A deck whose pages are not 16:9 has its own stage (for example 960x720 on a 4:3
+  deck): `get_presentation_frame_spec` returns it, and frames must use that width.
 - For a redesign or modification, call **`get_presentation_frame_spec`** once for the
   connected deck, then author the complete final frame yourself. Put it in `edit_slide`
   as `html`; Ploxs validates the frame, resolves `__ICON_<keywords>__` through its
@@ -205,7 +238,8 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
 - If the slide needs a generated visual (see "Generated images"), call
   **`generate_image`** with the deck ref and a precise prompt. It returns a public
   `assetUrl`, pixel dimensions, and the actual `aspectRatio`; decide the placement in
-  your authored HTML and reference that URL with `<img>`.
+  your authored HTML and reference that URL with `<img>`, fitted to that shape with
+  `object-fit: cover` or a matching `aspect-ratio`.
 - Put Chart.js markup directly in the authored frame using the returned chart protocol.
   If the frame spec is truncated or the chart block is unavailable, call
   **`get_chart_spec`**; it returns the library URL, rules, and complete working example
