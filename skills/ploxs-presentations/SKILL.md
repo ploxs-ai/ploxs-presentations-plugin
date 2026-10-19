@@ -94,10 +94,11 @@ photos.
 
 ## Images
 
-Images come from two sources. Royalty-free images from Pixabay are free, and the user
-picks them: **`prepare_stock_image_picker`** opens a page of scene cards with thumbnails
-for your searches. Call them royalty-free images when talking to the user, never stock
-photos. AI-generated images (**`generate_image`**) spend the user's credits. Follow `generatedImages` from
+Images come from two sources. Royalty-free images from Pixabay or Unsplash are free, and
+the user picks them: **`prepare_stock_image_picker`** opens a page of scene cards with
+thumbnails for your searches (Pixabay first; the user can switch any card to Unsplash).
+Call them royalty-free images when talking to the user, never stock photos. AI-generated
+images (**`generate_image`**) spend the user's credits. Follow `generatedImages` from
 `get_account_status`: `policy` combines the user's Settings choice (on / off / ask every
 time) with what the account can use, and `sources` lists the sources you may use
 (`stock` for royalty-free images, and `ai` when the account has credits or a membership).
@@ -141,7 +142,8 @@ Decide the shape of each image slot first.
   `skippedImageIds`, add one for each scene the user added (`addedByUser`, placed where
   its heading says), and pass the `sessionId` as `asset_session_id`. Never put a
   `pixabay.com` URL on a slide. No on-slide credit is needed; when the deck uses
-  royalty-free images, say in one line of the final message that they come from Pixabay.
+  royalty-free images, say in one line of the final message which sources they come from
+  (each image's `credit` names Pixabay or Unsplash).
 - **Generated**: for a new deck, call `generate_image` after `get_html_frame_spec` with
   its `style_ref`; for an existing deck pass `deck_ref`. Request the slot's
   `aspect_ratio`, pass `requested_by: "auto"` for an image you chose to add and `"user"`
