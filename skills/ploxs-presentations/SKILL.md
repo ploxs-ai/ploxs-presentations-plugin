@@ -94,9 +94,9 @@ photos.
 
 ## Images
 
-Images come from two sources. Royalty-free images from Pixabay or Unsplash are free, and
-the user picks them: **`prepare_stock_image_picker`** opens a page of scene cards with
-thumbnails for your searches (Pixabay first; the user can switch any card to Unsplash).
+Images come from two sources. Royalty-free images from Pixabay, Unsplash, or Wikimedia
+Commons are free, and the user picks them: **`prepare_stock_image_picker`** opens a page of
+scene cards with thumbnails for your searches (Pixabay first; the user can switch any card).
 Call them royalty-free images when talking to the user, never stock photos. AI-generated
 images (**`generate_image`**) spend the user's credits. Follow `generatedImages` from
 `get_account_status`: `policy` combines the user's Settings choice (on / off / ask every
@@ -128,7 +128,9 @@ Decide the shape of each image slot first.
   with the scene as the user will read it ("Rain falling over a misty river valley"), its
   `slide`, its `purpose` ("Full background behind the title; needs calm space on the
   left"), a few concrete English nouns to search ("rain river valley"), and an
-  `orientation` that matches its box. Give the user the returned `pickerUrl`. The page
+  `orientation` that matches its box. Set `commons: true` for a named real person, place,
+  event, species, or artwork, or a diagram or map: its card opens on Wikimedia Commons,
+  so search by the subject's name. Give the user the returned `pickerUrl`. The page
   shows each image as a scene card with its search results; the user picks an image for
   each, refines the search, uploads their own, or skips it, may rename a scene or add
   scenes of their own, and presses Done. You do not choose the images. While they
@@ -141,9 +143,10 @@ Decide the shape of each image slot first.
   renamed (`originalDescription` holds your wording), remove the `<img>` of any
   `skippedImageIds`, add one for each scene the user added (`addedByUser`, placed where
   its heading says), and pass the `sessionId` as `asset_session_id`. Never put a
-  `pixabay.com` URL on a slide. No on-slide credit is needed; when the deck uses
-  royalty-free images, say in one line of the final message which sources they come from
-  (each image's `credit` names Pixabay or Unsplash).
+  `pixabay.com` URL on a slide. Pixabay and Unsplash images need no on-slide credit; a
+  Wikimedia Commons image comes with `usageConditions` (usually a small credit on its
+  slide): follow them. When the deck uses royalty-free images, say in one line of the final
+  message which sources they come from (each image's `credit` names it).
 - **Generated**: for a new deck, call `generate_image` after `get_html_frame_spec` with
   its `style_ref`; for an existing deck pass `deck_ref`. Request the slot's
   `aspect_ratio`, pass `requested_by: "auto"` for an image you chose to add and `"user"`
@@ -307,10 +310,26 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   `aspectRatio`, placed with `<img>` and fitted with `object-fit: cover` or a matching
   `aspect-ratio`, or passed as `image_url` in a `replace_image` step to swap a picture in
   place on a deck Ploxs did not make.
-- Put Chart.js markup directly in the authored frame using the returned chart protocol.
-  If the frame spec is truncated or the chart block is unavailable, call
-  **`get_chart_spec`**; it returns the library URL, rules, and complete working example
-  in both text and structuredContent.
+- **Charts in an edit go through the chart editor**, so the user sees and can adjust
+  them before the slide changes. Write the chart's Chart.js config (data only; pass
+  `format` for prefixes, suffixes, and decimals instead of tick callbacks), call
+  **`prepare_chart_editor`** with it plus the chart's box `width` and `height` in px,
+  and give the user the returned `editorUrl`. There they can switch the type (bar,
+  horizontal bar, stacked bar, line, area, pie, doughnut, radar), edit the title,
+  legend, category and series names, axis titles, values, and colours, then press
+  Done, which sends the charts and closes the page (for later changes, call
+  `prepare_chart_editor` again for a new link). Meanwhile author the slide with each chart as
+  `<canvas data-ploxs-chart-id="chart_N"></canvas>` and no script. Wait with
+  **`get_chart_editor_status`** (`wait_seconds` 45, again while waiting), re-check any
+  slide text that describes the chart against the `changes` it reports, and pass the
+  `sessionId` as `chart_session_id` with `edit_slide`, `add_slides`, or
+  `update_presentation`. If the user says to go ahead without reviewing, place the
+  charts right away; they are used as they stand. A new deck keeps Chart.js in its
+  frames as before.
+- Chart.js markup written directly in the authored frame still works with the returned
+  chart protocol. If the frame spec is truncated or the chart block is unavailable,
+  call **`get_chart_spec`**; it returns the library URL, rules, and complete working
+  example in both text and structuredContent.
 - To insert new slides, pass authored `frames` to **`add_slides`**. It inserts those
   frames at the end or before/after an anchor without replacing an existing slide.
   MCP insertion is HTML-only, so Ploxs does not design the inserted slides. For compound
@@ -336,6 +355,11 @@ state at that operation.
 - `active_job_limit` / `rate_limited` → wait, then retry.
 - `presentation_image_session_required` → run the upload flow and pass its
   `asset_session_id` with the same frames.
+- `chart_session_required` / `chart_reference_missing` / `chart_reference_invalid` →
+  place each chart from `prepare_chart_editor` as
+  `<canvas data-ploxs-chart-id="chart_N"></canvas>` and pass its `chart_session_id`.
+- `chart_not_placeable` → the user left a chart that cannot be drawn (for example a pie
+  with negative values); ask them to fix it on the same chart editor page.
 - `presentation_image_reference_missing` / `presentation_image_reference_invalid` →
   place each uploaded or picked image with an `imageId` the session returned, and leave
   out images the user skipped.
