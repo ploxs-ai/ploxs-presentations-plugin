@@ -326,6 +326,14 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   `update_presentation`. If the user says to go ahead without reviewing, place the
   charts right away; they are used as they stand. A new deck keeps Chart.js in its
   frames as before.
+- **A chart already on a slide, without its config** (a new chat, a deck built
+  elsewhere): call `prepare_chart_editor` with `from_slide` (and `chart_index` if the
+  slide has several charts) instead of `config`. Ploxs loads the chart as it was made.
+  After Done, put it back with `update_presentation`, operation
+  `{ "type": "replace_chart", "chart_id": "chart_1" }`, and `chart_session_id`: Ploxs
+  redraws it into the same picture and leaves the rest of the slide as it is, so no
+  slide HTML is needed. If Ploxs kept no data for that chart, read its values off
+  `get_slide_images` and pass them as `config` together with `from_slide`.
 - Chart.js markup written directly in the authored frame still works with the returned
   chart protocol. If the frame spec is truncated or the chart block is unavailable,
   call **`get_chart_spec`**; it returns the library URL, rules, and complete working
@@ -360,6 +368,13 @@ state at that operation.
   `<canvas data-ploxs-chart-id="chart_N"></canvas>` and pass its `chart_session_id`.
 - `chart_not_placeable` → the user left a chart that cannot be drawn (for example a pie
   with negative values); ask them to fix it on the same chart editor page.
+- `slide_chart_data_missing` → read the chart's values from `get_slide_images` and pass
+  them as `config` with the same `from_slide`.
+- `chart_picture_not_found` / `chart_target_required` → name the picture with
+  `slide_number` and `element_id` from `read_slide`, or rebuild the slide with
+  `edit_slide` and a chart placeholder.
+- `chart_editor_finished` → the user already pressed Done; open a new chart editor for
+  further changes.
 - `presentation_image_reference_missing` / `presentation_image_reference_invalid` →
   place each uploaded or picked image with an `imageId` the session returned, and leave
   out images the user skipped.
