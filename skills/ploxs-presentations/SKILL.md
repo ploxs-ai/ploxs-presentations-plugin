@@ -310,30 +310,35 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   `aspectRatio`, placed with `<img>` and fitted with `object-fit: cover` or a matching
   `aspect-ratio`, or passed as `image_url` in a `replace_image` step to swap a picture in
   place on a deck Ploxs did not make.
-- **Charts in an edit go through the chart editor**, so the user sees and can adjust
-  them before the slide changes. Write the chart's Chart.js config (data only; pass
-  `format` for prefixes, suffixes, and decimals instead of tick callbacks), call
-  **`prepare_chart_editor`** with it plus the chart's box `width` and `height` in px,
-  and give the user the returned `editorUrl`. There they can switch the type (bar,
-  horizontal bar, stacked bar, line, area, pie, doughnut, radar), edit the title,
-  legend, category and series names, axis titles, values, and colours, then press
-  Done, which sends the charts and closes the page (for later changes, call
-  `prepare_chart_editor` again for a new link). Meanwhile author the slide with each chart as
-  `<canvas data-ploxs-chart-id="chart_N"></canvas>` and no script. Wait with
-  **`get_chart_editor_status`** (`wait_seconds` 45, again while waiting), re-check any
-  slide text that describes the chart against the `changes` it reports, and pass the
-  `sessionId` as `chart_session_id` with `edit_slide`, `add_slides`, or
-  `update_presentation`. If the user says to go ahead without reviewing, place the
-  charts right away; they are used as they stand. A new deck keeps Chart.js in its
-  frames as before.
-- **A chart already on a slide, without its config** (a new chat, a deck built
-  elsewhere): call `prepare_chart_editor` with `from_slide` (and `chart_index` if the
-  slide has several charts) instead of `config`. Ploxs loads the chart as it was made.
-  After Done, put it back with `update_presentation`, operation
-  `{ "type": "replace_chart", "chart_id": "chart_1" }`, and `chart_session_id`: Ploxs
-  redraws it into the same picture and leaves the rest of the slide as it is, so no
-  slide HTML is needed. If Ploxs kept no data for that chart, read its values off
-  `get_slide_images` and pass them as `config` together with `from_slide`.
+- **Charts in an edit: review is optional.** Load the chart with
+  **`prepare_chart_editor`**: `from_slide` (plus `chart_index` if the slide has several)
+  for a chart already on a slide, otherwise its Chart.js config (data only; pass `format`
+  for prefixes, suffixes, and decimals) with its box `width` and `height` in px. Then
+  follow what the user asked:
+  - **They asked to edit a chart without saying what to change** ("edit the chart on
+    slide 13"): give them the returned `editorUrl`, wait with
+    **`get_chart_editor_status`** (`wait_seconds` 45, again while waiting), then place it.
+  - **They asked for a specific change** ("make it a pie", "colour Store C teal"):
+    make it yourself with `changes` in `prepare_chart_editor` (for example
+    `{ "preset": "pie" }`), or with **`edit_chart`** on a chart already prepared. Then ask
+    once: "Do you want to review it before it goes on the slide?" If not, place it right
+    away; Done is not needed. If so, give them the `editorUrl`, wait, then place it.
+    Never ask the user to make a change in the editor that they asked you to make.
+  On the page they can also switch the type, flip or stack it, edit every label,
+  value, and colour, drag the legend and title, and add notes and target lines; Done
+  closes the page. **Place** a chart loaded with `from_slide` back into its picture with
+  `update_presentation`, operation `{ "type": "replace_chart", "chart_id": "chart_1" }`,
+  and `chart_session_id` (no slide HTML). Place any other chart as
+  `<canvas data-ploxs-chart-id="chart_1" width="560" height="320"></canvas>`, sized in px
+  to fit the slide (Ploxs draws it at that size, so it fits the first time; never reopen
+  the editor just to resize), and pass `chart_session_id` with `edit_slide`, `add_slides`,
+  or `update_presentation`. Several charts on one slide are fine. A pie or doughnut with
+  several series draws a pie for each, side by side, in that one canvas; for one per
+  slide instead, add `data-ploxs-chart-series="s2"`. Re-check any slide text that
+  describes the chart against the changes (notes and lines the user added are drawn on
+  the chart, so do not repeat them). If Ploxs kept no data for a slide's chart, read its
+  values off `get_slide_images` and pass them as `config` with `from_slide`. A new deck
+  keeps Chart.js in its frames as before.
 - Chart.js markup written directly in the authored frame still works with the returned
   chart protocol. If the frame spec is truncated or the chart block is unavailable,
   call **`get_chart_spec`**; it returns the library URL, rules, and complete working
