@@ -73,7 +73,9 @@ status.
 
 ## Before creating decks
 
-Sign in at [ploxs.com](https://ploxs.com) and connect Google Drive in Settings. Generated
+Sign in at [ploxs.com/mcp/setup](https://ploxs.com/mcp/setup), the **Plugin** home,
+and connect Google Drive. The adjacent **Template** header link opens the template
+workspace at [ploxs.com/template](https://ploxs.com/template). Generated
 images need usage available. Ploxs creates the Slides file in your own Drive, so
 Drive linking requires your approval.
 
@@ -92,7 +94,8 @@ this repository while the MCP tools it drives run on Ploxs.
 ## Links
 
 - Website: https://ploxs.com
-- Setup: https://ploxs.com/mcp/setup
+- Signed-in home (Plugin): https://ploxs.com/mcp/setup
+- Template: https://ploxs.com/template
 - Privacy: https://ploxs.com/privacy
 - Terms: https://ploxs.com/terms
 
