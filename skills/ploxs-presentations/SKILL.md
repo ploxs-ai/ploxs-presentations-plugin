@@ -44,8 +44,8 @@ Tool results name the next step by number - trust that over your memory of this 
    accepted `styleRef` (see "Review the style").
 4. **`get_html_frame_spec`** once. With images: **`prepare_image_portal`** once with its
    `style_ref`, hand the user the `portalUrl`, and wait with
-   **`get_presentation_image_upload_status`** until `ready` (when every image is an AI
-   image, ask first - see "Images"). Author every final frame, then
+   **`get_presentation_image_upload_status`** until `ready`. AI images go there too
+   unless `reviewSettings.aiImageReview` is `auto` (see "Images"). Author every final frame, then
    **`create_presentation_from_html`** **once**. Keep the returned `jobId` and
    `statusUrl`. Do not overdo images; a failed automatic image never stops the deck.
 5. **`wait_for_presentation`** with that `jobId`; if the client exposes only the compatible
@@ -126,11 +126,13 @@ the user asked for on an account without credits is refused with the billing lin
   before adding it: "Should I use a royalty-free image (free, you pick it) or an
   AI-generated image (uses your Ploxs credits)?" Never choose for them, because one source spends
   credits. Skip the question only when `sources` lists a single source.
-- **Only AI images** (nothing the user supplied, nothing royalty-free): the portal is
-  optional. Ask once: "Do you want to review the AI image prompts or add reference images
-  (for example your product, or a photo of a person) before I generate them?" Yes: put
-  them as `ai` scenes on `prepare_image_portal`. No: call `generate_image` for each, with
-  no portal. Skip the question when the user already said.
+- **AI image review** follows `reviewSettings.aiImageReview`, and Ploxs enforces it.
+  `review` (the default): every AI image, the ones the user asks for and the ones you
+  add, goes on `prepare_image_portal` as an `ai` scene, so the user checks its prompt
+  (and may add reference images) before it is generated; `generate_image` refuses.
+  `auto`: call `generate_image` directly, and open the portal only when the user asks to
+  see the prompt or add a reference image. Never tell the user they can edit a prompt
+  first unless it goes on the portal.
 - No `get_account_status` in this chat yet: treat the policy as `on_request`.
 
 Decide the shape of each image slot first.
@@ -156,7 +158,9 @@ user asked for in the chat).
 - `ai` scenes: the `prompt` (subject, setting, light, mood, and style; the deck style is
   added for you) and the box's `aspect_ratio`. When the user will add reference images,
   say how to use them ("the espresso machine from the reference image, on a marble
-  counter").
+  counter"). When the image shows a real product, person, place, or logo, add a
+  `reference_query` ("Breville Barista Express"): the card's Find references searches it
+  on royalty-free sources and Google Images.
 
 Give the user the returned `portalUrl`. While they work on it, author the frames with
 `<img data-ploxs-image-id="presentation_image_N">` in boxes with an explicit size and
@@ -184,8 +188,8 @@ and pass the `sessionId` as `asset_session_id` with the same `deck_ref`. Each ed
 place only some of the session's images. Never create a new deck to add the user's
 photos.
 
-**Straight to AI** (`generate_image`, when only AI images are wanted and the user does not
-want to review them): for a new deck pass the spec's `style_ref`; for an existing deck
+**Straight to AI** (`generate_image`, only when `reviewSettings.aiImageReview` is `auto`
+and only AI images are wanted): for a new deck pass the spec's `style_ref`; for an existing deck
 pass `deck_ref`. Request the slot's `aspect_ratio`, pass `requested_by`, and place the
 returned `assetUrl` with `<img>`, fitted to the returned `widthPx`/`heightPx` as the
 contract describes.
@@ -386,7 +390,7 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   user did not say): open **`prepare_image_portal`** with the deck ref and a `stock` or
   `ai` scene for it, then place it as `<img data-ploxs-image-id="presentation_image_N">`
   and pass the portal's `sessionId` as `asset_session_id` with the edit (or `image_id` in
-  a `replace_image` step). For an AI image the user does not want to review, call
+  a `replace_image` step). Under `aiImageReview: auto`, an AI image can instead come from
   **`generate_image`** with the deck ref and a precise prompt; it returns a public `assetUrl`, pixel dimensions, and the actual
   `aspectRatio`, placed with `<img>` and fitted with `object-fit: cover` or a matching
   `aspect-ratio`, or passed as `image_url` in a `replace_image` step to swap a picture in
