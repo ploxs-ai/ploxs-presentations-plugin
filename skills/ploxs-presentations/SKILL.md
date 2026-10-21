@@ -127,11 +127,11 @@ the user asked for on an account without credits is refused with the billing lin
   AI-generated image (uses your Ploxs credits)?" Never choose for them, because one source spends
   credits. Skip the question only when `sources` lists a single source.
 - **AI image review** follows `reviewSettings.aiImageReview`, and Ploxs enforces it.
-  `review` (the default): every AI image, the ones the user asks for and the ones you
-  add, goes on `prepare_image_portal` as an `ai` scene, so the user checks its prompt
-  (and may add reference images) before it is generated; `generate_image` refuses.
-  `auto`: call `generate_image` directly, and open the portal only when the user asks to
-  see the prompt or add a reference image. Never tell the user they can edit a prompt
+  `auto` (the default): call `generate_image` directly, and open the portal only when
+  the user asks to see the prompt or add a reference image. `review`: every AI image,
+  the ones the user asks for and the ones you add, goes on `prepare_image_portal` as an
+  `ai` scene, so the user checks its prompt (and may add reference images) before it is
+  generated; `generate_image` refuses. Never tell the user they can edit a prompt
   first unless it goes on the portal.
 - No `get_account_status` in this chat yet: treat the policy as `on_request`.
 
