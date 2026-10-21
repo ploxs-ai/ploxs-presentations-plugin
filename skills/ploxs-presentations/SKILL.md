@@ -34,9 +34,9 @@ Tool results name the next step by number - trust that over your memory of this 
    `reviewSettings` and `generatedImages` are the user's settings, and Ploxs enforces
    them: a tool refuses a step the settings have not cleared and says what to do instead.
 2. Images - note every image the user supplied for the deck (attachments, images made
-   earlier in the chat) and any royalty-free or AI images the settings allow. They all
-   go in **one** image portal at step 4. Never drop or replace a supplied image, and
-   never defer it to a later edit.
+   earlier in the chat) and, under `generatedImages.policy` `auto`, the images you plan
+   yourself even when the user supplied none. They all go in **one** image portal at
+   step 4. Never drop or replace a supplied image, and never defer it to a later edit.
 3. Style - one saved style the user picked, or one complete inline `style_config` drawn
    from the deck's subject, not a default look. When the settings have the user review
    the style: **`prepare_style_review`**, hand them the
@@ -86,7 +86,9 @@ Every image goes through one page, the image portal: **`prepare_image_portal`** 
 scene per image, each of one kind:
 
 - `upload` - an image the user supplied in the chat (pass its `filename` exactly as the
-  chat shows it), or one they will add, such as their logo.
+  chat shows it), or, with no `filename`, one that should be the user's own, such as
+  their team, product, office, screenshot, or logo. That card opens ready for them to
+  add it, and still offers a royalty-free or AI image if they have none.
 - `stock` - a royalty-free image from Pixabay, Unsplash, or Wikimedia Commons that the user
   picks; free.
 - `ai` - an AI-generated image: you write the `prompt`, and the user may edit it, add up
@@ -107,10 +109,15 @@ has credits or a membership). Ploxs enforces the setting: a scene you chose to a
 (the result's `leftOff` says which and why), and `generate_image` refuses it. An AI image
 the user asked for on an account without credits is refused with the billing link.
 
-- `auto` - add images wherever you judge they make the deck better, from `sources` only,
-  without overdoing it. With both sources, prefer a royalty-free image for real places,
-  people, objects, food, and nature, and generate an image for a concept, a bespoke
-  scene, or a slide no royalty-free image fits.
+- `auto` - add images wherever you judge they make the deck better, even when the user
+  supplied none, from `sources` only, without overdoing it. With both sources, prefer a
+  royalty-free image for real places, people, objects, food, and nature, and generate an
+  image for a concept, a bespoke scene, or a slide no royalty-free image fits. Under the
+  "AI + royalty-free" setting (`both`) the user wants images on every new deck; it falls
+  back to royalty-free images only while the account has no credits or active membership.
+  A deck created without any images comes back from
+  **`create_presentation_from_html`** with a `deck_without_images` warning: tell the user
+  and offer to add them. If the user asked for no images, leave it.
 - `ask_user` - the user chooses this deck's images once. When the style review page
   opens for the deck (`prepare_style_review`, checklist step 3), it asks them there, and
   `get_style_review_status` reports `imageChoice`: `both`, `stock`, or `ai` means add
