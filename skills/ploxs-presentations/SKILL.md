@@ -46,7 +46,7 @@ Tool results name the next step by number - trust that over your memory of this 
    `style_ref`, hand the user the `portalUrl`, and wait with
    **`get_presentation_image_upload_status`** until `ready`. AI images go there too
    unless `reviewSettings.aiImageReview` is `auto` (see "Images"). Author every final frame, then
-   **`create_presentation_from_html`** **once**. Keep the returned `jobId` and
+   **`create_presentation_from_html`** **once** with every slide of the deck, no test slide. Keep the returned `jobId` and
    `statusUrl`. Do not overdo images; a failed automatic image never stops the deck.
 5. **`wait_for_presentation`** with that `jobId`; if the client exposes only the compatible
    **`get_presentation_status`** name, use it instead. Each call waits ~45s; `timedOut: true`
