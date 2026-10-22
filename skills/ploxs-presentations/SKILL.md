@@ -118,6 +118,11 @@ the user asked for on an account without credits is refused with the billing lin
   A deck created without any images comes back from
   **`create_presentation_from_html`** with a `deck_without_images` warning: tell the user
   and offer to add them. If the user asked for no images, leave it.
+- Under `auto`, and under `ask_user` once the user has chosen, do not be shy about involving
+  the user: picking images on the portal is part of making their deck, and you author the
+  frames while they pick. Whenever an image should be the user's own, add an upload scene;
+  whenever a royalty-free image suits it, add a stock scene, as long as `sources` allows
+  it. Never choose AI, or leave an image out, only to save the user a step.
 - `ask_user` - the user chooses this deck's images once. When the style review page
   opens for the deck (`prepare_style_review`, checklist step 3), it asks them there, and
   `get_style_review_status` reports `imageChoice`: `both`, `stock`, or `ai` means add
