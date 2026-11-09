@@ -89,7 +89,7 @@ scene per image, each of one kind:
   chat shows it), or, with no `filename`, one that should be the user's own, such as
   their team, product, office, screenshot, or logo. That card opens ready for them to
   add it, and still offers a royalty-free or AI image if they have none.
-- `stock` - a royalty-free image from Pixabay, Unsplash, or Wikimedia Commons that the user
+- `stock` - a royalty-free image from Unsplash, Wikimedia Commons, or Pixabay that the user
   picks; free.
 - `ai` - an AI-generated image: you write the `prompt`, and the user may edit it, add up
   to 4 reference images (their product, a person, a logo, a look to match), and
@@ -384,11 +384,16 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   short-lived download link; call again for a fresh one.
 - Fetch **`get_presentation_outline`** before targeting a slide number.
 - **Small changes** go through `update_presentation`'s native steps, which keep
-  everything they do not name: `replace_text` and `replace_image` (element ids from
-  `read_slide`; the image is centre-cropped into the existing frame),
-  `replace_all_text`, `set_speaker_notes`, `duplicate_slide`, `move_slides`, and
-  `delete_slides` (only slides the user asked to remove). Use them instead of
-  rebuilding a slide, above all on decks Ploxs did not make.
+  everything they do not name: `edit_elements` (the wording, font size, weight,
+  colour, font, alignment, fill, place, or size of one slide's own elements, or
+  deleting one, written together with no redraw), `replace_text` and
+  `replace_image` (element ids from `read_slide`; the image is centre-cropped into
+  the existing frame), `replace_all_text`, `set_speaker_notes`, `duplicate_slide`,
+  `move_slides`, and `delete_slides` (only slides the user asked to remove). Use
+  them instead of rebuilding a slide, above all on decks Ploxs did not make. For
+  example, `{ "type": "edit_elements", "slide_number": 3, "edits": [{ "type":
+  "replace_text", "element_id": "<id>", "find": "2024", "replace": "2025" }, {
+  "type": "style_text", "element_id": "<id>", "font_size": 40 }] }`.
 - A deck whose pages are not 16:9 has its own stage (for example 960x720 on a 4:3
   deck): `get_presentation_frame_spec` returns it, and frames must use that width.
 - For a redesign or modification, call **`get_presentation_frame_spec`** once for the
@@ -447,7 +452,9 @@ Frames convert exactly as authored. Follow the returned contract literally, espe
   authored edits, use `update_presentation` with `edit_slide` and `add_slides` operations
   carrying HTML.
 - Wait with **`wait_for_presentation_edit`** before dependent edits, and keep no more
-  than three edit tasks active per key.
+  than three edit tasks active per key. It reports an edit complete once the change
+  is in Google Slides; Ploxs finishes it (layout check, style overlays) in the
+  background, and the next change to the deck waits for that by itself.
 - Creation never updates a deck. Calling `create_presentation_from_html` again creates a
   duplicate Drive file, so edit the live `deckRef` instead.
 

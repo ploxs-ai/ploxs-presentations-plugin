@@ -101,7 +101,7 @@ this repository while the MCP tools it drives run on Ploxs.
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+MIT - see [LICENSE](./LICENSE).
 
 ## Contributing
 
