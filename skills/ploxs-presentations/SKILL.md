@@ -243,6 +243,17 @@ Use exactly one style source per call.
   both roles without a reason, white rounded cards with an icon badge on each, and a
   personality made only of adjectives such as clean, modern, and professional. The
   user's brand, a saved style, or a request for something plain always wins.
+- **Write to the limits the server enforces, so the first call passes.**
+  `customStyleDirective` is an object (never a bare string) whose `personality` is at
+  least 80 characters, two or three sentences, beside `headingWeight` and
+  `bodyWeight`. `colorPalette.text` must reach at least 3:1 contrast against both
+  `background` and `surface`, because slide text sits on both (a dark deck needs a dark
+  surface). Every Google font named must appear in `googleFontsImport`. Each
+  `iconPacks` entry is a bare lowercase prefix such as `material-symbols`, never
+  `mdi:home`. Text over its limit is cut without any error, so keep `style` to 240
+  characters, the palette name to 120, `googleFontsImport` to 500, `colorUsage` and
+  `layoutUsage` to 1,200 each, the other brand texts to 900 each, and at most 12 `dos`
+  and 12 `donts` of 220 characters each.
 - Let the destination tool validate the style before queueing. Use
   **`validate_style_config`** only to diagnose a reported config problem or when the user
   explicitly requests validation; do not duplicate routine config payloads.
@@ -472,7 +483,8 @@ state at that operation.
   `prepare_style_review` and wait for Accept. A user
   who does not want reviews changes the setting at `https://ploxs.com/mcp/setup`; never skip it yourself.
 - `incomplete_style_config` → add the missing art direction to the style; never drop to
-  a palette and fonts.
+  a palette and fonts. Each missing part is named, and a too-short `personality` comes
+  with its length and the minimum.
 - `style_review_expired` / `style_review_not_found` → call `prepare_style_review` again
   for a new link; the user's earlier edits on the old link are not carried over.
 - `auto_image_not_allowed` / `auto_images_off` → the user's image setting does not allow
