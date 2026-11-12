@@ -33,6 +33,10 @@ Tool results name the next step by number - trust that over your memory of this 
 1. **`get_account_status`** - Google Drive must be connected (see below). Its
    `reviewSettings` and `generatedImages` are the user's settings, and Ploxs enforces
    them: a tool refuses a step the settings have not cleared and says what to do instead.
+   `billing.decks.remaining` is how many new decks the account may still make; a new deck, or
+   connecting a deck that is new to the account, uses one, and edits never do. At 0, do
+   not author a deck: tell the user, give them the link the result names, and offer to
+   edit an existing deck instead.
 2. Images - note every image the user supplied for the deck (attachments, images made
    earlier in the chat) and, under `generatedImages.policy` `auto`, the images you plan
    yourself even when the user supplied none. They all go in **one** image portal at
@@ -104,7 +108,7 @@ user, never stock photos.
 Follow `generatedImages` from `get_account_status`: `policy` combines the user's setting
 (`ask`, `both`, `stock`, `ai`, or `off`) with what the account can use, and `sources`
 lists the sources you may add (`stock` for royalty-free images, and `ai` when the account
-has credits or a membership). Ploxs enforces the setting: a scene you chose to add
+has credits). Ploxs enforces the setting: a scene you chose to add
 (`requested_by: "auto"`) from a source the setting does not allow is left off the portal
 (the result's `leftOff` says which and why), and `generate_image` refuses it. An AI image
 the user asked for on an account without credits is refused with the billing link.
@@ -114,7 +118,7 @@ the user asked for on an account without credits is refused with the billing lin
   royalty-free image for real places, people, objects, food, and nature, and generate an
   image for a concept, a bespoke scene, or a slide no royalty-free image fits. Under the
   "AI + royalty-free" setting (`both`) the user wants images on every new deck; it falls
-  back to royalty-free images only while the account has no credits or active membership.
+  back to royalty-free images only while the account has no credits.
   A deck created without any images comes back from
   **`create_presentation_from_html`** with a `deck_without_images` warning: tell the user
   and offer to add them. If the user asked for no images, leave it.
@@ -215,7 +219,7 @@ that slide without the image (or with a clean placeholder panel in the deck styl
 keep building. Do not ask the user mid-build; at most note the skipped images in one line
 of the final message.
 
-A user-requested image that fails, or hits a credit or membership limit, is different:
+A user-requested image that fails, or hits a credit limit, is different:
 tell the user plainly what happened, with the billing link for a credit error, instead
 of dropping or replacing it silently.
 
